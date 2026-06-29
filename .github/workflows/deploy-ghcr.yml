@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main" ]
 
-# IMPORTANTE: Permisos para escribir en el registro de paquetes de GitHub
+# Permisos requeridos para interactuar con GitHub Packages
 permissions:
   contents: read
   packages: write
@@ -24,16 +24,20 @@ jobs:
         distribution: 'temurin'
         cache: 'maven'
 
-    # Paso 3: Construir la imagen y guardarla en el Docker local de GitHub Actions
-    # Eliminamos publish=true para que se quede en el entorno local
+    # SOLUCON AL ERROR: Darle permisos de ejecución al Maven Wrapper explícitamente
+    - name: Dar permisos de ejecucion a mvnw
+      run: chmod +x ./mvnw
+
+    # Paso 3: Construir la imagen localmente
     - name: Construir Imagen localmente con Buildpacks
       run: |
+        # Forzamos todo el nombre del repositorio a minúsculas para cumplir con el estándar de Docker
         IMAGE_NAME=$(echo "ghcr.io/${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
         
         ./mvnw spring-boot:build-image \
           -Dspring-boot.build-image.imageName=$IMAGE_NAME:latest
 
-    # Paso 4: Iniciar sesión en GHCR usando la acción oficial
+    # Paso 4: Iniciar sesión en GHCR antes del push
     - name: Iniciar sesión en GHCR
       uses: docker/login-action@v3
       with:
@@ -41,7 +45,7 @@ jobs:
         username: ${{ github.actor }} 
         password: ${{ secrets.GITHUB_TOKEN }} 
 
-    # Paso 5: Empujar la imagen al registro usando el CLI de Docker
+    # Paso 5: Publicar usando el CLI de Docker con la sesión ya iniciada
     - name: Publicar Imagen en GHCR
       run: |
         IMAGE_NAME=$(echo "ghcr.io/${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
