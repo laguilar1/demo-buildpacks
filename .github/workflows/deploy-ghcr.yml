@@ -1,58 +1,48 @@
-name: CI/CD Pipeline Inmutable (GitHub Packages + Java Buildpacks)
+name: CI/CD Spring Boot con Buildpacks hacia GHCR
 
 on:
   push:
     branches: [ "main" ]
 
+# IMPORTANTE: Permisos para escribir en el registro de paquetes de GitHub
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
   packages: write
 
 jobs:
-  release-and-deploy:
+  build-and-push:
     runs-on: ubuntu-latest
+
     steps:
-      # 1. Ejecutar Release Please para automatizar versiones e identificar fusiones de release
-      - uses: googleapis/release-please-action@v4
-        id: release
-        with:
-          release-type: maven
+    - name: Descargar código
+      uses: actions/checkout@v4
 
-      # 2. Descargar el código (SOLO si se acaba de aceptar/crear una nueva release oficial)
-      - name: Checkout del código
-        if: ${{ steps.release.outputs.release_created }}
-        uses: actions/checkout@v4
+    - name: Configurar JDK 25
+      uses: actions/setup-java@v4
+      with:
+        java-version: '25'
+        distribution: 'temurin'
+        cache: 'maven'
 
-      # 3. Configurar JDK 26
-      - name: Configurar JDK 26
-        if: ${{ steps.release.outputs.release_created }}
-        uses: actions/setup-java@v4
-        with:
-          java-version: '26'
-          distribution: 'temurin'
-          cache: 'maven'
+    # Paso 3: Construir la imagen y guardarla en el Docker local de GitHub Actions
+    # Eliminamos publish=true para que se quede en el entorno local
+    - name: Construir Imagen localmente con Buildpacks
+      run: |
+        IMAGE_NAME=$(echo "ghcr.io/${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+        
+        ./mvnw spring-boot:build-image \
+          -Dspring-boot.build-image.imageName=$IMAGE_NAME:latest
 
-      # 4. Autenticación en GHCR
-      - name: Autenticación en GHCR
-        if: ${{ steps.release.outputs.release_created }}
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+    # Paso 4: Iniciar sesión en GHCR usando la acción oficial
+    - name: Iniciar sesión en GHCR
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }} 
+        password: ${{ secrets.GITHUB_TOKEN }} 
 
-      # 5. Construir y subir la imagen usando Cloud-Native Buildpacks
-      - name: Construir y Publicar con Buildpacks
-        if: ${{ steps.release.outputs.release_created }}
-        run: |
-          BASE_IMAGE_NAME=$(echo "ghcr.io/${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          VERSION_LIMPIA="${{ steps.release.outputs.version }}"
-          
-          echo "Construyendo contenedores inmutables para la versión: $VERSION_LIMPIA"
-          
-          ./mvnw spring-boot:build-image \
-            -Dspring-boot.build-image.imageName=$BASE_IMAGE_NAME:$VERSION_LIMPIA,$BASE_IMAGE_NAME:latest \
-            -Dspring-boot.build-image.publish=true \
-            -Dspring-boot.build-image.publishRegistry.username=${{ github.repository_owner }} \
-            -Dspring-boot.build-image.publishRegistry.password=${{ secrets.GITHUB_TOKEN }}
+    # Paso 5: Empujar la imagen al registro usando el CLI de Docker
+    - name: Publicar Imagen en GHCR
+      run: |
+        IMAGE_NAME=$(echo "ghcr.io/${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+        docker push $IMAGE_NAME:latest
