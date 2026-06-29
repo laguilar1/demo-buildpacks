@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main" ]
 
-# Permisos requeridos para interactuar con GitHub Packages
+# 1. IMPORTANTE: Le damos permisos al flujo para escribir en el registro de paquetes de GitHub
 permissions:
   contents: read
   packages: write
@@ -24,29 +24,22 @@ jobs:
         distribution: 'temurin'
         cache: 'maven'
 
-    # SOLUCON AL ERROR: Darle permisos de ejecución al Maven Wrapper explícitamente
-    - name: Dar permisos de ejecucion a mvnw
-      run: chmod +x ./mvnw
-
-    # Paso 3: Construir la imagen localmente
-    - name: Construir Imagen localmente con Buildpacks
-      run: |
-        # Forzamos todo el nombre del repositorio a minúsculas para cumplir con el estándar de Docker
-        IMAGE_NAME=$(echo "ghcr.io/${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-        
-        ./mvnw spring-boot:build-image \
-          -Dspring-boot.build-image.imageName=$IMAGE_NAME:latest
-
-    # Paso 4: Iniciar sesión en GHCR antes del push
+    # Paso 3: Iniciar sesión en GitHub Container Registry (ghcr.io)
+    # Usamos el token automático que GitHub nos da en cada ejecución
     - name: Iniciar sesión en GHCR
       uses: docker/login-action@v3
       with:
         registry: ghcr.io
-        username: ${{ github.actor }} 
-        password: ${{ secrets.GITHUB_TOKEN }} 
+        username: ${{ github.actor }} # Usa automáticamente tu nombre de usuario de GitHub
+        password: ${{ secrets.GITHUB_TOKEN }} # Token automático temporal
 
-    # Paso 5: Publicar usando el CLI de Docker con la sesión ya iniciada
-    - name: Publicar Imagen en GHCR
+    # Paso 4: Pasar el nombre de la imagen en minúsculas y compilar con Buildpacks
+    # El formato obligatorio de GHCR es: ghcr.io/tu-usuario/nombre-imagen:tag
+    - name: Construir y Publicar Imagen en GHCR
       run: |
+        # GitHub obliga a que el nombre del usuario esté en minúsculas en el registro, esto lo asegura:
         IMAGE_NAME=$(echo "ghcr.io/${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-        docker push $IMAGE_NAME:latest
+        
+        ./mvnw spring-boot:build-image \
+          -Dspring-boot.build-image.imageName=$IMAGE_NAME:latest \
+          -Dspring-boot.build-image.publish=true
