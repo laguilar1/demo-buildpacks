@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.7](https://github.com/laguilar1/demo-buildpacks/compare/v1.1.6...v1.1.7) (2026-06-29)
+
+
+### Bug Fixes
+
+* mejorando el deploy ([7d148f0](https://github.com/laguilar1/demo-buildpacks/commit/7d148f024921ba78511417b58c26d3de1543abb3))
+
 ## [1.1.6](https://github.com/laguilar1/demo-buildpacks/compare/v1.1.5...v1.1.6) (2026-06-29)
 
 
