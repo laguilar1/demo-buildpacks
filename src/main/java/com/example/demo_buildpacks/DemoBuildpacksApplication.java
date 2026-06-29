@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 @SpringBootApplication
 @RestController // 1. Le decimos al Srping que esto es un API REST
 public class DemoBuildpacksApplication {
+	
 
 	public static void main(String[] args) {
 		SpringApplication.run(DemoBuildpacksApplication.class, args);
@@ -18,5 +19,6 @@ public class DemoBuildpacksApplication {
 	public String holaMundo() {
 		return "¡Felicidades Luis! Tur proyecto de Spring Boot arrancó con éxito :).";
 	}
+
 
 }
