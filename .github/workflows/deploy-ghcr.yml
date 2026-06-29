@@ -47,14 +47,13 @@ jobs:
         if: ${{ steps.release.outputs.release_created }}
         run: |
           BASE_IMAGE_NAME=$(echo "ghcr.io/${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          
-          # CAMBIAMOS 'tag_name' POR 'version' PARA QUITAR LA 'v' ASQUEROSA
           VERSION_LIMPIA="${{ steps.release.outputs.version }}"
           
           echo "Construyendo contenedores inmutables para la versión: $VERSION_LIMPIA"
           
+          # QUITAMOS EL HASH DE GIT PARA EVITAR QUE EL PLUGIN SE ROMPA
           ./mvnw spring-boot:build-image \
-            -Dspring-boot.build-image.imageName=$BASE_IMAGE_NAME:$VERSION_LIMPIA,$BASE_IMAGE_NAME:${{ github.sha }},$BASE_IMAGE_NAME:latest \
+            -Dspring-boot.build-image.imageName=$BASE_IMAGE_NAME:$VERSION_LIMPIA,$BASE_IMAGE_NAME:latest \
             -Dspring-boot.build-image.publish=true \
             -Dspring-boot.build-image.publishRegistry.username=${{ github.repository_owner }} \
             -Dspring-boot.build-image.publishRegistry.password=${{ secrets.GITHUB_TOKEN }}
