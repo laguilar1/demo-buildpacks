@@ -1,0 +1,60 @@
+name: CI/CD Pipeline Inmutable (GitHub Packages + Java Buildpacks)
+
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: write
+  pull-requests: write
+  packages: write
+
+jobs:
+  release-or-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Ejecutar Release Please para automatizar versiones (Configurado para Maven)
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          release-type: maven # <-- CORREGIDO: Ahora entiende proyectos Java/Maven
+
+      # 2. Descargar el código (solo si se aceptó el PR de la nueva release)
+      - name: Checkout del código
+        if: ${{ steps.release.outputs.release_created }}
+        uses: actions/checkout@v4
+
+      # 3. Configurar Java para que corra el Buildpack
+      - name: Configurar JDK 26
+        if: ${{ steps.release.outputs.release_created }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: '26'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      # 4. Autenticación en GHCR
+      - name: Autenticación en GHCR
+        if: ${{ steps.release.outputs.release_created }}
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # 5. Construir y subir la imagen usando Cloud-Native Buildpacks (Sin Dockerfile)
+      - name: Construir y Publicar con Buildpacks
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          # Aseguramos el nombre del repositorio en minúsculas para GHCR
+          BASE_IMAGE_NAME=$(echo "ghcr.io/${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          
+          # Extraemos el tag generado por Release Please (ej. 1.0.0)
+          TAG_NAME="${{ steps.release.outputs.tag_name }}"
+          
+          echo "Construyendo contenedores inmutables para la versión: $TAG_NAME"
+          
+          # Buildpack genera las tres etiquetas inmutables separadas por comas
+          ./mvnw spring-boot:build-image \
+            -Dspring-boot.build-image.imageName=$BASE_IMAGE_NAME:$TAG_NAME,$BASE_IMAGE_NAME:${{ github.sha }},$BASE_IMAGE_NAME:latest \
+            -Dspring-boot.build-image.publish=true
