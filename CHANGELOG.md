@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/laguilar1/demo-buildpacks/compare/v1.1.1...v1.1.2) (2026-06-29)
+
+
+### Bug Fixes
+
+* otorgar permisos de ejecucion a mvnw ([8d7b4f2](https://github.com/laguilar1/demo-buildpacks/commit/8d7b4f28d02a2ee0d1718efffd2e2fa1a8f998ff))
+
 ## [1.1.1](https://github.com/laguilar1/demo-buildpacks/compare/v1.1.0...v1.1.1) (2026-06-29)
 
 
