@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/laguilar1/demo-buildpacks/compare/v1.1.0...v1.1.1) (2026-06-29)
+
+
+### Bug Fixes
+
+* mejorando el github actions ([c52becd](https://github.com/laguilar1/demo-buildpacks/commit/c52becd9960064643540623638e56942eae44ee0))
+
 ## [1.1.0](https://github.com/laguilar1/demo-buildpacks/compare/v1.0.0...v1.1.0) (2026-06-29)
 
 
