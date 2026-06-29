@@ -42,19 +42,15 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # 5. Construir y subir la imagen usando Cloud-Native Buildpacks (Sin Dockerfile)
+      # 5. Construir y subir la imagen usando Cloud-Native Buildpacks
       - name: Construir y Publicar con Buildpacks
         if: ${{ steps.release.outputs.release_created }}
         run: |
-          # Aseguramos el nombre del repositorio en minúsculas para GHCR
           BASE_IMAGE_NAME=$(echo "ghcr.io/${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          
-          # Extraemos el tag generado por Release Please (ej. 1.0.0)
           TAG_NAME="${{ steps.release.outputs.tag_name }}"
           
-          echo "Construyendo contenedores inmutables para la versión: $TAG_NAME"
-          
-          # Buildpack genera las tres etiquetas inmutables separadas por comas
           ./mvnw spring-boot:build-image \
             -Dspring-boot.build-image.imageName=$BASE_IMAGE_NAME:$TAG_NAME,$BASE_IMAGE_NAME:${{ github.sha }},$BASE_IMAGE_NAME:latest \
-            -Dspring-boot.build-image.publish=true
+            -Dspring-boot.build-image.publish=true \
+            -Dspring-boot.build-image.publishRegistry.username=${{ github.repository_owner }} \
+            -Dspring-boot.build-image.publishRegistry.password=${{ secrets.GITHUB_TOKEN }}
