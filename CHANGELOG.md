@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.11](https://github.com/laguilar1/demo-buildpacks/compare/v1.1.10...v1.1.11) (2026-06-29)
+
+
+### Bug Fixes
+
+* distribución multiregistro ([887e07b](https://github.com/laguilar1/demo-buildpacks/commit/887e07b98c8ca20c02be520dcb2cf91bde8b57d1))
+
 ## [1.1.10](https://github.com/laguilar1/demo-buildpacks/compare/v1.1.9...v1.1.10) (2026-06-29)
 
 
