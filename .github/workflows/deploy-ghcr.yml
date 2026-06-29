@@ -34,16 +34,12 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       # 4. Construir y subir la imagen usando la Acción Oficial de Buildpacks
-      # Reemplaza por completo el 'docker/build-push-action' usando el compilador inmutable de Java
       - name: Construir y Subir con Cloud-Native Buildpacks
         if: ${{ steps.release.outputs.release_created }}
         uses: buildpacks/github-actions@v2
         with:
-          # Usamos el constructor oficial de Paketo para aplicaciones Java/Spring Boot
           builder: 'paketobuildpacks/builder-jammy-base:latest'
-          
-          # Convertimos automáticamente el repositorio a minúsculas para evitar fallos de Docker
           image: 'ghcr.io/${{ github.repository }}'
           
-          # Definimos las etiquetas idénticas a tu flujo inmutable de Node
-          tag: '${{ steps.release.outputs.tag_name }},${{ github.sha }},latest'
+          # CORRECCIÓN: Usamos 'version' (1.1.6) en lugar de 'tag_name' (v1.1.6)
+          tag: '${{ steps.release.outputs.version }},${{ github.sha }},latest'
