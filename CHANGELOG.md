@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.1.8](https://github.com/laguilar1/demo-buildpacks/compare/v1.1.7...v1.1.8) (2026-06-29)
+
+
+### Bug Fixes
+
+* corregir 1 ([8674dd9](https://github.com/laguilar1/demo-buildpacks/commit/8674dd9b74d2703c3ccd971f3fce3d2ecf6746a0))
+* corregir 2 ([17d1d68](https://github.com/laguilar1/demo-buildpacks/commit/17d1d68b501bc1eb1c9c8ec93d6720e7d781e437))
+* corregir 3 ([200be57](https://github.com/laguilar1/demo-buildpacks/commit/200be576c592a20cf7304fa744eb2c89055ebf64))
+* corregir 4 ([5bc67f3](https://github.com/laguilar1/demo-buildpacks/commit/5bc67f3354bd101e299f08c55d4e62a6349e653d))
+* corregir 5 ([3b98e68](https://github.com/laguilar1/demo-buildpacks/commit/3b98e68ec44510a8adaaacb7f60addc363ca0174))
+* corrigiendo el error ([a9c3a28](https://github.com/laguilar1/demo-buildpacks/commit/a9c3a2898432a505d40914a6fc72f72ff1f2ad2a))
+* mejorando el deploy ([ce0596c](https://github.com/laguilar1/demo-buildpacks/commit/ce0596c21377408d521bab4d7bb0d75e8271f83c))
+
 ## [1.1.7](https://github.com/laguilar1/demo-buildpacks/compare/v1.1.6...v1.1.7) (2026-06-29)
 
 
