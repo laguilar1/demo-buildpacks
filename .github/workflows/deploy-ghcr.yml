@@ -1,46 +1,53 @@
-name: Deploy to GHCR (Java Buildpacks)
+name: CI/CD Pipeline Inmutable (GitHub Packages + Java Buildpacks)
 
 on:
-  release:
-    types: [published] # <-- Corre SOLO cuando la release ya está firmada y creada
+  push:
+    branches: [ "main" ]
 
 permissions:
   contents: write
+  pull-requests: write
   packages: write
 
 jobs:
-  deploy:
+  release-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      # 1. Descargar el código en el tag de la release
+      # 1. Ejecutar Release Please para automatizar versiones e identificar fusiones de release
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          release-type: maven
+
+      # 2. Descargar el código (SOLO si se acaba de aceptar/crear una nueva release oficial)
       - name: Checkout del código
+        if: ${{ steps.release.outputs.release_created }}
         uses: actions/checkout@v4
 
-      # 2. Configurar JDK 26
+      # 3. Configurar JDK 26
       - name: Configurar JDK 26
+        if: ${{ steps.release.outputs.release_created }}
         uses: actions/setup-java@v4
         with:
           java-version: '26'
           distribution: 'temurin'
           cache: 'maven'
 
-      # 3. Autenticación en GHCR
+      # 4. Autenticación en GHCR
       - name: Autenticación en GHCR
+        if: ${{ steps.release.outputs.release_created }}
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # 4. Construir y subir la imagen usando Cloud-Native Buildpacks
+      # 5. Construir y subir la imagen usando Cloud-Native Buildpacks
       - name: Construir y Publicar con Buildpacks
+        if: ${{ steps.release.outputs.release_created }}
         run: |
           BASE_IMAGE_NAME=$(echo "ghcr.io/${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          
-          # Obtenemos la versión directamente del tag del evento de la release
-          VERSION_LIMPIA="${{ github.event.release.tag_name }}"
-          # Si el tag viene con 'v' (ej. v1.0.0), limpiamos la 'v' si tu pom no la lleva:
-          VERSION_LIMPIA="${VERSION_LIMPIA#v}"
+          VERSION_LIMPIA="${{ steps.release.outputs.version }}"
           
           echo "Construyendo contenedores inmutables para la versión: $VERSION_LIMPIA"
           
