@@ -12,7 +12,6 @@ public class DemoBuildpacksApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(DemoBuildpacksApplication.class, args);
-		
 	}
 
 	@GetMapping("/saludo") // 2.- Creamos la ruta web http://localhost:8080/saludo
