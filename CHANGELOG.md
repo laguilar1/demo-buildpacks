@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.9](https://github.com/laguilar1/demo-buildpacks/compare/v1.1.8...v1.1.9) (2026-06-29)
+
+
+### Bug Fixes
+
+* corregir 6 ([bd209b5](https://github.com/laguilar1/demo-buildpacks/commit/bd209b5451675f3a84f8691e0a912bfd2ae69336))
+
 ## [1.1.8](https://github.com/laguilar1/demo-buildpacks/compare/v1.1.7...v1.1.8) (2026-06-29)
 
 
