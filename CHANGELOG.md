@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.4](https://github.com/laguilar1/demo-buildpacks/compare/v1.1.3...v1.1.4) (2026-06-29)
+
+
+### Bug Fixes
+
+* corregir formato de etiqueta de version en buildpack ([d348c71](https://github.com/laguilar1/demo-buildpacks/commit/d348c71fb2d765ca7f146683805c6ae615c64332))
+
 ## [1.1.3](https://github.com/laguilar1/demo-buildpacks/compare/v1.1.2...v1.1.3) (2026-06-29)
 
 
