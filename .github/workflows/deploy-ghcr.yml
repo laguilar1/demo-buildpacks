@@ -33,13 +33,23 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # 4. Construir y subir la imagen usando la Acción Oficial de Buildpacks
+      # 4. CORRECCIÓN: Instalar el CLI oficial de Buildpacks (Pack)
+      - name: Instalar Pack CLI
+        if: ${{ steps.release.outputs.release_created }}
+        uses: buildpacks/github-actions/setup-pack@v5.0.0
+
+      # 5. Construir y subir la imagen de Java inyectando las 3 etiquetas a GHCR
       - name: Construir y Subir con Cloud-Native Buildpacks
         if: ${{ steps.release.outputs.release_created }}
-        uses: buildpacks/github-actions@v2
-        with:
-          builder: 'paketobuildpacks/builder-jammy-base:latest'
-          image: 'ghcr.io/${{ github.repository }}'
+        run: |
+          IMAGE_NAME=$(echo "ghcr.io/${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          VERSION="${{ steps.release.outputs.version }}"
+          SHA="${{ github.sha }}"
           
-          # CORRECCIÓN: Usamos 'version' (1.1.6) en lugar de 'tag_name' (v1.1.6)
-          tag: '${{ steps.release.outputs.version }},${{ github.sha }},latest'
+          # 'pack build' construye de manera limpia y usa '--publish' para subirlo
+          # directo al registro donde nos autenticamos en el Paso 3.
+          pack build $IMAGE_NAME:$VERSION \
+            --builder paketobuildpacks/builder-jammy-base:latest \
+            --tag $IMAGE_NAME:$SHA \
+            --tag $IMAGE_NAME:latest \
+            --publish
