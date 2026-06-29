@@ -46,10 +46,10 @@ jobs:
           VERSION="${{ steps.release.outputs.version }}"
           SHA="${{ github.sha }}"
           
-          # 'pack build' construye de manera limpia y usa '--publish' para subirlo
-          # directo al registro donde nos autenticamos en el Paso 3.
+          # Añadimos --env BP_JVM_VERSION=26 para que coincida con tu pom.xml
           pack build $IMAGE_NAME:$VERSION \
             --builder paketobuildpacks/builder-jammy-base:latest \
+            --env BP_JVM_VERSION=26 \
             --tag $IMAGE_NAME:$SHA \
             --tag $IMAGE_NAME:latest \
             --publish
