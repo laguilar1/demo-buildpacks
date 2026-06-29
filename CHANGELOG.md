@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/laguilar1/demo-buildpacks/compare/v1.0.0...v1.1.0) (2026-06-29)
+
+
+### Features
+
+* reconfiguracion de etiquetas del pipeline ([755ed16](https://github.com/laguilar1/demo-buildpacks/commit/755ed16c8df33933e2dacb7226b9805f32f6a5d9))
+
 ## 1.0.0 (2026-06-29)
 
 
